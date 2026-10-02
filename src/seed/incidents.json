@@ -1,0 +1,7 @@
+{
+  "_note": "Sự cố Line A cố định cho kịch bản demo (ADC-004). Reset chỉ trả về làm mẫu điền form — khai báo bằng POST /api/incidents sau khi xếp lịch.",
+  "timezone": "+07:00",
+  "incidents": [
+    {"ref": "INC-A-01", "line": "A", "start_at": "09:00", "est_downtime_min": 180, "note": "Dừng line A 09:00–12:00 (giả lập)"}
+  ]
+}

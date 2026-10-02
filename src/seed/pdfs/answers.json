@@ -1,0 +1,425 @@
+{
+  "received_at": "2026-10-01T08:00:00+07:00",
+  "samples": {
+    "01_phieu_giavi": {
+      "kind": "text",
+      "about": "Phiếu yêu cầu đủ 8 trường (TC1, TC11)",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Bột ớt xay khô",
+            "quantity": 120,
+            "package_dimensions_cm": [
+              40,
+              30,
+              25
+            ],
+            "pkg_weight_kg": 8,
+            "required_dose_kgy": 10,
+            "priority": "NORMAL",
+            "expected_arrival": "2026-10-02T09:00",
+            "requested_return": "2026-10-02T16:00"
+          }
+        }
+      ]
+    },
+    "02_phieu_haisan_vip": {
+      "kind": "text",
+      "about": "Phiếu đủ trường, ưu tiên VIP ghi rõ",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Tôm sú đông lạnh",
+            "quantity": 60,
+            "package_dimensions_cm": [
+              50,
+              40,
+              20
+            ],
+            "pkg_weight_kg": 12,
+            "required_dose_kgy": 5,
+            "priority": "VIP",
+            "expected_arrival": "2026-10-03T07:30",
+            "requested_return": "2026-10-03T15:00"
+          }
+        }
+      ]
+    },
+    "03_email_2lo": {
+      "kind": "text",
+      "about": "1 file 2 ticket (TC4): lô 1 inch/lb + 'gấp' + 'mai' (TC7, suy luận); lô 2 thiếu liều + giờ trả (TC3)",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "tôm đông lạnh",
+            "quantity": 50,
+            "package_dimensions_cm": [
+              50.8,
+              40.64,
+              30.48
+            ],
+            "pkg_weight_kg": 9.98,
+            "required_dose_kgy": 5,
+            "priority": "URGENT",
+            "expected_arrival": "2026-10-02T07:00",
+            "requested_return": "2026-10-02T14:00"
+          }
+        },
+        {
+          "page_from": 2,
+          "page_to": 2,
+          "fields": {
+            "product_name": "vật tư y tế (găng tay)",
+            "quantity": 200,
+            "package_dimensions_cm": [
+              50,
+              40,
+              30
+            ],
+            "pkg_weight_kg": 12,
+            "required_dose_kgy": null,
+            "priority": null,
+            "expected_arrival": "2026-10-03T13:00",
+            "requested_return": null
+          }
+        }
+      ]
+    },
+    "04_phieu_thieu_lieu": {
+      "kind": "text",
+      "about": "Thiếu liều + giờ trả + ưu tiên (TC3)",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Xoài sấy dẻo",
+            "quantity": 60,
+            "package_dimensions_cm": [
+              50,
+              35,
+              30
+            ],
+            "pkg_weight_kg": 11.8,
+            "required_dose_kgy": null,
+            "priority": null,
+            "expected_arrival": "2026-10-02T13:00",
+            "requested_return": null
+          }
+        }
+      ]
+    },
+    "05_phieu_tra_truoc_den": {
+      "kind": "text",
+      "about": "Giờ trả trước giờ hàng đến (TC8) — trích đúng giá trị, validator bắt lỗi",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Hạt điều rang muối",
+            "quantity": 100,
+            "package_dimensions_cm": [
+              40,
+              30,
+              20
+            ],
+            "pkg_weight_kg": 10,
+            "required_dose_kgy": 10,
+            "priority": "URGENT",
+            "expected_arrival": "2026-10-04T14:00",
+            "requested_return": "2026-10-04T10:00"
+          }
+        }
+      ]
+    },
+    "06_email_don_vi_anh": {
+      "kind": "text",
+      "about": "Email tiếng Anh, đơn vị inch/lb (TC7)",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "dried mango slices",
+            "quantity": 40,
+            "package_dimensions_cm": [
+              45.72,
+              30.48,
+              25.4
+            ],
+            "pkg_weight_kg": 9.07,
+            "required_dose_kgy": 10,
+            "priority": null,
+            "expected_arrival": "2026-10-05T08:00",
+            "requested_return": "2026-10-05T17:00"
+          }
+        }
+      ]
+    },
+    "07_phieu_lieu_7": {
+      "kind": "text",
+      "about": "Liều 7 kGy ngoài danh mục — trích đúng, validator hỏi lại",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Bột nghệ vàng",
+            "quantity": 90,
+            "package_dimensions_cm": [
+              40,
+              30,
+              25
+            ],
+            "pkg_weight_kg": 9,
+            "required_dose_kgy": 7,
+            "priority": "NORMAL",
+            "expected_arrival": "2026-10-05T08:00",
+            "requested_return": "2026-10-05T18:00"
+          }
+        }
+      ]
+    },
+    "08_phieu_2trang": {
+      "kind": "text",
+      "about": "1 ticket trải 2 trang (không được tách thành 2 lệnh)",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 2,
+          "fields": {
+            "product_name": "Hạt tiêu đen",
+            "quantity": 80,
+            "package_dimensions_cm": [
+              45,
+              35,
+              30
+            ],
+            "pkg_weight_kg": 15,
+            "required_dose_kgy": 10,
+            "priority": "VIP",
+            "expected_arrival": "2026-10-03T08:30",
+            "requested_return": "2026-10-03T17:00"
+          }
+        }
+      ]
+    },
+    "09_phieu_vattu_yte": {
+      "kind": "text",
+      "about": "Vật tư y tế, 25 kGy, trả ngày hôm sau",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Găng tay y tế nitrile",
+            "quantity": 300,
+            "package_dimensions_cm": [
+              50,
+              40,
+              30
+            ],
+            "pkg_weight_kg": 12,
+            "required_dose_kgy": 25,
+            "priority": "URGENT",
+            "expected_arrival": "2026-10-06T09:00",
+            "requested_return": "2026-10-07T09:00"
+          }
+        }
+      ]
+    },
+    "10_email_traicay_gam": {
+      "kind": "text",
+      "about": "Email, khối lượng theo gam, ngày tương đối 'thứ Hai tới', không nêu ưu tiên",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "thanh long ruột đỏ",
+            "quantity": 150,
+            "package_dimensions_cm": [
+              60,
+              40,
+              25
+            ],
+            "pkg_weight_kg": 12,
+            "required_dose_kgy": 10,
+            "priority": null,
+            "expected_arrival": "2026-10-05T06:00",
+            "requested_return": "2026-10-05T12:00"
+          }
+        }
+      ]
+    },
+    "11_scan_phieu_giavi": {
+      "kind": "scan",
+      "about": "Bản scan của 01_phieu_giavi",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Bột ớt xay khô",
+            "quantity": 120,
+            "package_dimensions_cm": [
+              40,
+              30,
+              25
+            ],
+            "pkg_weight_kg": 8,
+            "required_dose_kgy": 10,
+            "priority": "NORMAL",
+            "expected_arrival": "2026-10-02T09:00",
+            "requested_return": "2026-10-02T16:00"
+          }
+        }
+      ]
+    },
+    "12_scan_email_2lo": {
+      "kind": "scan",
+      "about": "Bản scan của 03_email_2lo",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "tôm đông lạnh",
+            "quantity": 50,
+            "package_dimensions_cm": [
+              50.8,
+              40.64,
+              30.48
+            ],
+            "pkg_weight_kg": 9.98,
+            "required_dose_kgy": 5,
+            "priority": "URGENT",
+            "expected_arrival": "2026-10-02T07:00",
+            "requested_return": "2026-10-02T14:00"
+          }
+        },
+        {
+          "page_from": 2,
+          "page_to": 2,
+          "fields": {
+            "product_name": "vật tư y tế (găng tay)",
+            "quantity": 200,
+            "package_dimensions_cm": [
+              50,
+              40,
+              30
+            ],
+            "pkg_weight_kg": 12,
+            "required_dose_kgy": null,
+            "priority": null,
+            "expected_arrival": "2026-10-03T13:00",
+            "requested_return": null
+          }
+        }
+      ]
+    },
+    "13_scan_phieu_thieu_lieu": {
+      "kind": "scan",
+      "about": "Bản scan của 04_phieu_thieu_lieu",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Xoài sấy dẻo",
+            "quantity": 60,
+            "package_dimensions_cm": [
+              50,
+              35,
+              30
+            ],
+            "pkg_weight_kg": 11.8,
+            "required_dose_kgy": null,
+            "priority": null,
+            "expected_arrival": "2026-10-02T13:00",
+            "requested_return": null
+          }
+        }
+      ]
+    },
+    "14_scan_email_don_vi_anh": {
+      "kind": "scan",
+      "about": "Bản scan của 06_email_don_vi_anh",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "dried mango slices",
+            "quantity": 40,
+            "package_dimensions_cm": [
+              45.72,
+              30.48,
+              25.4
+            ],
+            "pkg_weight_kg": 9.07,
+            "required_dose_kgy": 10,
+            "priority": null,
+            "expected_arrival": "2026-10-05T08:00",
+            "requested_return": "2026-10-05T17:00"
+          }
+        }
+      ]
+    },
+    "15_scan_phieu_vattu_yte": {
+      "kind": "scan",
+      "about": "Bản scan của 09_phieu_vattu_yte",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Găng tay y tế nitrile",
+            "quantity": 300,
+            "package_dimensions_cm": [
+              50,
+              40,
+              30
+            ],
+            "pkg_weight_kg": 12,
+            "required_dose_kgy": 25,
+            "priority": "URGENT",
+            "expected_arrival": "2026-10-06T09:00",
+            "requested_return": "2026-10-07T09:00"
+          }
+        }
+      ]
+    },
+    "16_scan_tra_truoc_den_mo": {
+      "kind": "scan",
+      "about": "Bản scan của 05_phieu_tra_truoc_den",
+      "tickets": [
+        {
+          "page_from": 1,
+          "page_to": 1,
+          "fields": {
+            "product_name": "Hạt điều rang muối",
+            "quantity": 100,
+            "package_dimensions_cm": [
+              40,
+              30,
+              20
+            ],
+            "pkg_weight_kg": 10,
+            "required_dose_kgy": 10,
+            "priority": "URGENT",
+            "expected_arrival": "2026-10-04T14:00",
+            "requested_return": "2026-10-04T10:00"
+          }
+        }
+      ]
+    }
+  }
+}

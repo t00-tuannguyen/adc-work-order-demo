@@ -1,0 +1,13 @@
+{
+  "_note": "Seed demo ADC-002/ADC-004 — giờ địa phương HH:MM, gắn vào ngày reset. Chỉ gia vị 10 kGy vì các hệ số khác còn TODO trong throughput.yaml.",
+  "timezone": "+07:00",
+  "orders": [
+    {"ref": "SEED-01", "product_name": "Bột ớt xay khô", "quantity": 120, "pkg_length_cm": 40, "pkg_width_cm": 30, "pkg_height_cm": 25, "pkg_weight_kg": 8, "required_dose_kgy": 10, "priority": "NORMAL", "expected_arrival": "08:00", "requested_return": "14:00"},
+    {"ref": "SEED-02", "product_name": "Hạt tiêu đen", "quantity": 80, "pkg_length_cm": 50, "pkg_width_cm": 40, "pkg_height_cm": 30, "pkg_weight_kg": 15, "required_dose_kgy": 10, "priority": "VIP", "expected_arrival": "08:00", "requested_return": "12:30"},
+    {"ref": "SEED-03", "product_name": "Bột nghệ vàng", "quantity": 60, "pkg_length_cm": 40, "pkg_width_cm": 30, "pkg_height_cm": 25, "pkg_weight_kg": 10, "required_dose_kgy": 10, "priority": "URGENT", "expected_arrival": "09:00", "requested_return": "13:00"},
+    {"ref": "SEED-04", "product_name": "Gia vị tổng hợp", "quantity": 150, "pkg_length_cm": 40, "pkg_width_cm": 30, "pkg_height_cm": 20, "pkg_weight_kg": 6, "required_dose_kgy": 10, "priority": "NORMAL", "expected_arrival": "10:00", "requested_return": "17:00"},
+    {"ref": "SEED-05", "product_name": "Quế thanh", "quantity": 100, "pkg_length_cm": 50, "pkg_width_cm": 30, "pkg_height_cm": 30, "pkg_weight_kg": 12, "required_dose_kgy": 10, "priority": "VIP", "expected_arrival": "11:00", "requested_return": "17:00"},
+    {"ref": "SEED-06", "product_name": "Hoa hồi khô", "quantity": 90, "pkg_length_cm": 40, "pkg_width_cm": 40, "pkg_height_cm": 25, "pkg_weight_kg": 9, "required_dose_kgy": 10, "priority": "URGENT", "expected_arrival": "12:00", "requested_return": "17:30"},
+    {"ref": "SEED-07", "product_name": "Tiêu trắng", "quantity": 70, "pkg_length_cm": 40, "pkg_width_cm": 30, "pkg_height_cm": 25, "pkg_weight_kg": 8, "required_dose_kgy": 10, "priority": "NORMAL", "expected_arrival": "13:00", "requested_return": "19:00"}
+  ]
+}

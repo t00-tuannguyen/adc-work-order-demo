@@ -1,0 +1,53 @@
+# Render Blueprint — backend demo miễn phí (ADR-0012, T-013). Hướng dẫn: docs/deployment.md
+# DB dùng Neon Free (không dùng Render Postgres Free vì bị xóa sau 30 ngày); frontend deploy trên Vercel.
+# Biến `sync: false` nhập tay trên dashboard Render khi apply Blueprint — không commit secret.
+services:
+  - type: web
+    name: adc-work-order-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: staging
+      - key: LOG_LEVEL
+        value: INFO
+      # Filesystem tạm — PDF mất sau mỗi lần deploy/restart (ADR-0012)
+      - key: UPLOAD_DIR
+        value: /app/data/uploads
+      - key: DATABASE_URL # Neon: postgresql://...?sslmode=require
+        sync: false
+      - key: FRONTEND_URL # https://<app>.vercel.app
+        sync: false
+      - key: CORS_ORIGINS # = FRONTEND_URL
+        sync: false
+      - key: OAUTH_REDIRECT_URI # https://<app>.vercel.app/auth/google/callback (đi qua proxy frontend)
+        sync: false
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: ALLOWED_EMAIL_DOMAINS
+        sync: false
+      - key: BOOTSTRAP_ADMIN_EMAILS
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LANGCHAIN_API_KEY
+        sync: false
+      - key: LANGCHAIN_PROJECT
+        value: adc-irradiation-work-order
+      - key: LANGCHAIN_TRACING_V2
+        value: "true"
+      # Môi trường demo: cho phép reset seed
+      - key: DEMO_RESET_ENABLED
+        value: "true"
+      - key: FEATURE_DEMO_LOGIN
+        value: "false"

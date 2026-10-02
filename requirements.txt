@@ -1,0 +1,31 @@
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+python-multipart>=0.0.18  # multipart upload PDF (ADR-0009)
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# AI / LangChain
+langchain>=0.3.0
+langchain-openai>=0.3.0
+langgraph>=0.2.0
+
+# Database (ADR-0002) — sqlalchemy bật từ T-049; alembic bật từ T-017
+sqlalchemy>=2.0.0
+alembic>=1.14.0
+psycopg[binary]>=3.2.0  # PostgreSQL staging/prod (Neon) — driver mặc định của SQLAlchemy 2.1; ADR-0002, ADR-0012
+
+# Xác thực — ID token Google (ADR-0008)
+pyjwt[crypto]>=2.9.0
+
+# PDF / OCR / trích xuất ticket (ADR-0010): pypdf kiểm tra file, Gemini đọc + OCR + trích xuất
+pypdf>=6.0.0
+google-genai>=2.0.0
+
+# Dev tools
+ruff>=0.8.0
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
+httpx>=0.28.0

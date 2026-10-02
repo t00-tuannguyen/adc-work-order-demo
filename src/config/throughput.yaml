@@ -1,0 +1,51 @@
+# Giả định throughput MÔ PHỎNG — không phải thông số vật lý chiếu xạ thật.
+# Nguồn: Đặc tả #2 (tasks/ADC-002-duration-estimation.md). Đổi tham số ở đây, không sửa code.
+# Giá trị chỉ có trong ví dụ của đặc tả đã được điền; các mục TODO cần nhóm chốt với mentor (T-023).
+
+version: "0.1.0"
+
+setup_min: 30            # phút chuẩn bị mỗi lệnh
+min_per_kg: 0.05         # phút / kg
+min_per_m3: 10           # phút / m³
+buffer_pct: 0.10         # 10%
+round_to_min: 15         # làm tròn lên bội số 15 phút
+
+density_factor:          # theo nhóm sản phẩm (product_group)
+  spice: 1.0             # gia vị — từ ví dụ trong đặc tả
+  seafood: null          # TODO
+  fruit: 1.0
+  vegetable: null        # TODO — nấm, rau củ sấy / đông lạnh (ticket 03–04/10/2026)
+  powder: null           # TODO — bột thảo dược, bột mì (ticket 03–04/10/2026)
+  medical_goods: null    # TODO
+
+product_groups:          # tên sản phẩm chứa từ khóa (không phân biệt hoa thường) → nhóm; khớp 0 hoặc ≥ 2 nhóm → không gán
+  # Từ khóa bổ sung từ 65 ticket thật nhập 03–04/10/2026. Không dùng "bột" trơn: "tôm tẩm bột" sẽ khớp 2 nhóm.
+  spice: ["gia vị", "hạt tiêu", "tiêu đen", "tiêu trắng", "bột ớt", "ớt xay", "nghệ", "quế", "hoa hồi", "spice", "pepper", "chili", "turmeric"]
+  seafood: ["tôm", "cá ", "cá hồi", "cá ngừ", "cá tra", "cá trê", "mực", "ghẹ", "cua", "ếch", "hải sản",
+            "shrimp", "seafood", "fish", "tuna", "squid", "aji", "trimmeat"]
+  fruit: ["xoài", "thanh long", "dưa hấu", "dưa lưới", "chanh", "chuối", "thơm", "khóm", "dứa", "mía",
+          "watermelon", "trái cây", "hoa quả", "mango", "dragon fruit", "fruit"]
+  vegetable: ["nấm", "bắp cải", "rau"]
+  powder: ["bột mì", "bột cà gai leo", "bột khôi tía", "bột bầu đất", "bột tắm", "botamax", "thảo mộc", "thảo dược"]
+  medical_goods: ["vật tư y tế", "găng tay", "bơm tiêm", "khẩu trang", "medical", "glove", "syringe"]
+
+dose_factor:             # theo liều yêu cầu (kGy)
+  "5": null              # TODO
+  "10": 1.5              # từ ví dụ trong đặc tả
+  "25": null   
+  "3.5": 1          # TODO
+
+lines:                   # ADC-003 / T-054 (chốt 01/10/2026): line chạy 24/7, ưu tiên ca ngày — chờ đối tác xác nhận
+  shifts:
+    day: { start: "06:00", end: "22:00" }   # giờ địa phương (LOCAL_UTC_OFFSET); đơn thường nằm trọn trong ca
+    night_priorities: [URGENT, VIP]          # chỉ đơn khẩn cấp được chạy ca đêm; bỏ cả mục `shifts` → 24/7 cho mọi đơn
+
+risk:                    # ngưỡng WARN/BLOCK (ADC-005) — TODO chốt với đối tác
+  warn_threshold: null
+  block_threshold: null
+
+ocr:                              # cổng HITL sau OCR — ADC-001, ADR-0007
+  low_confidence_threshold: 0.8   # < ngưỡng → giữ DRAFT, người phải xác nhận (HITL)
+  warn_confidence_threshold: 0.9  # [low, warn) → tự đi tiếp + cảnh báo cho người
+
+# Kiểm tra: 120 thùng × 8 kg, 40×30×25 cm, spice, 10 kGy → 180 phút
