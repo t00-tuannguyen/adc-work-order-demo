@@ -1,7 +1,7 @@
 // Phê duyệt plan version & lịch sử trạng thái — ADC-006 (T-041, T-042). Kiểu + hàm thuần, test bằng node --test.
 // Contract: specs/api-contracts.md §6.
 
-import { hhmm, type Line, type PlanVersion, type WorkOrderState } from "./board.ts";
+import { hhmm, type Line, type PlanVersion, todayVN, type WorkOrderState } from "./board.ts";
 import type { Priority } from "./intake.ts";
 
 export type ChangeType =
@@ -114,4 +114,25 @@ export function rejectReasonError(reason: string): string | null {
   if (!r) return "Phải ghi lý do từ chối.";
   if (r.length > 500) return "Lý do tối đa 500 ký tự.";
   return null;
+}
+
+// ---------- Màn so sánh 2 version — /approvals/[id] ----------
+
+/** "Trước" = lịch nền của diff (ACTIVE hiện tại khi còn chờ duyệt, version cha khi đã xử lý); "sau" = chính version. */
+export function compareVersions(diff: Pick<PlanDiff, "plan_version" | "base_version_id">): {
+  before: string;
+  after: string;
+} {
+  return {
+    before: diff.base_version_id ? String(diff.base_version_id) : "current",
+    after: String(diff.plan_version.id),
+  };
+}
+
+/** Các ngày (giờ VN) có slot cũ / mới của đơn thay đổi (+ mốc thêm, vd khung dừng sự cố) — để chọn ngày xem. */
+export function diffDays(changes: Pick<PlanChange, "old" | "new">[], extra: string[] = []): string[] {
+  const stamps = [...extra, ...changes.flatMap((c) => [c.old?.start, c.new.start, c.new.end])].filter(
+    (t): t is string => !!t,
+  );
+  return [...new Set(stamps.map((t) => todayVN(Date.parse(t))))].sort();
 }

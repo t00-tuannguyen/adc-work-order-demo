@@ -1,5 +1,7 @@
 """ADC-001 — validator (TC3, TC8) và BR-01."""
 
+import pytest
+
 from src.modules.intake import ErrorCode, WorkOrderFields, is_complete, validate
 from src.modules.types import Priority
 from tests.conftest import at
@@ -19,7 +21,7 @@ COMPLETE = WorkOrderFields(
 
 
 def test_complete_ticket_has_no_errors():
-    assert validate(COMPLETE, allowed_doses=["10"]) == []
+    assert validate(COMPLETE) == []
     assert is_complete(COMPLETE)
 
 
@@ -38,9 +40,15 @@ def test_return_not_after_arrival_is_error():
     assert [e.code for e in validate(fields)] == [ErrorCode.RETURN_NOT_AFTER_ARRIVAL]
 
 
-def test_dose_outside_catalog_needs_confirmation():
-    fields = COMPLETE.model_copy(update={"required_dose_kgy": 7})
-    assert [e.code for e in validate(fields, allowed_doses=["10"])] == [ErrorCode.DOSE_NEEDS_CONFIRMATION]
+@pytest.mark.parametrize("dose", [0.5, 7, 25])
+def test_dose_within_range_is_taken_from_ticket(dose):
+    assert validate(COMPLETE.model_copy(update={"required_dose_kgy": dose})) == []
+
+
+@pytest.mark.parametrize("dose", [0, -5, 25.5, 40])
+def test_dose_out_of_range_is_error(dose):
+    errors = validate(COMPLETE.model_copy(update={"required_dose_kgy": dose}))
+    assert [(e.field, e.code) for e in errors] == [("required_dose_kgy", ErrorCode.DOSE_OUT_OF_RANGE)]
 
 
 def test_optional_fields_may_be_missing():

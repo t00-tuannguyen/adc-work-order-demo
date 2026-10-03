@@ -90,9 +90,13 @@ def test_tc8_return_before_arrival_is_error():
     ]
 
 
-def test_dose_outside_catalog_needs_confirmation():
-    g = gate(COMPLETE.model_copy(update={"required_dose_kgy": 7}), allowed_doses=["5", "10", "25"])
-    assert [(c.field, c.code) for c in g.clarifications] == [("required_dose_kgy", ErrorCode.DOSE_NEEDS_CONFIRMATION)]
+def test_dose_outside_catalog_needs_no_clarification():
+    assert gate(COMPLETE.model_copy(update={"required_dose_kgy": 7})).clarifications == []
+
+
+def test_dose_above_25_needs_clarification():
+    g = gate(COMPLETE.model_copy(update={"required_dose_kgy": 30}))
+    assert [(c.field, c.code) for c in g.clarifications] == [("required_dose_kgy", ErrorCode.DOSE_OUT_OF_RANGE)]
 
 
 def test_missing_fields_dominate_low_confidence():

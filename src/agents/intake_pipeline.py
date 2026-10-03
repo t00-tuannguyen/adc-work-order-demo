@@ -9,7 +9,6 @@ chờ quản lý duyệt, BLOCK → BLOCK_NEW_ORDER; không xếp được → g
 Tab "Dán nội dung" (T-021) dùng chung `create_tickets` + `create_work_orders`.
 """
 
-from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -85,7 +84,6 @@ def auto_schedule(db: Session, wo: WorkOrder, *, actor_id: str, now: datetime) -
 @dataclass(frozen=True)
 class GateConfig:
     thresholds: ReviewThresholds
-    allowed_doses: list[str] | None = None
 
 
 def create_tickets(
@@ -156,7 +154,6 @@ def create_work_orders(
             n.signals,
             gate_config.thresholds,
             ticket=TicketSignal(boundary_uncertain=extracted.boundary_uncertain, possible_duplicate=duplicate),
-            allowed_doses=gate_config.allowed_doses,
         )
         record_gate(db, wo, gate, now=now)
         orders.append(wo)
@@ -186,11 +183,10 @@ class OrderAgentPipeline:
         thresholds: ReviewThresholds,
         *,
         ocr_enabled: bool,
-        allowed_doses: Iterable[str] | None = None,
         now=None,
     ):
         self.extractor, self.ocr_enabled = extractor, ocr_enabled
-        self.gate = GateConfig(thresholds, list(allowed_doses) if allowed_doses is not None else None)
+        self.gate = GateConfig(thresholds)
         self.now = now or (lambda: datetime.now().astimezone())
         self.document: DocumentExtraction | None = None
         self.tickets: list[Ticket] = []

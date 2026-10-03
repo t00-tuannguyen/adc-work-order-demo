@@ -18,7 +18,6 @@ from sqlalchemy.orm import Session
 
 from src.agents.graph import get_throughput_config
 from src.api.deps import require
-from src.api.intake import allowed_doses
 from src.modules.estimation import ThroughputConfig
 from src.modules.identity import Action, User
 from src.modules.intake import (
@@ -165,7 +164,7 @@ def load_seed(
 ) -> list[tuple[str, WorkOrder]]:
     loaded: list[tuple[str, WorkOrder]] = []
     for ref, fields in orders:
-        if errors := validate(fields, allowed_doses=allowed_doses()):
+        if errors := validate(fields):
             raise SeedError(f"{ref}: {', '.join(f'{e.field} {e.code}' for e in errors)}")
         ticket = Ticket(source_type=TicketSourceType.MANUAL, raw_text=f"Seed demo {ref}")
         db.add(ticket)

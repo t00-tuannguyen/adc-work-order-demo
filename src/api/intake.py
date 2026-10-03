@@ -62,7 +62,7 @@ def get_order_agent(settings: Settings = Depends(get_settings)) -> PdfExtractor 
 
 
 def gate_config() -> GateConfig:
-    return GateConfig(ReviewThresholds.from_config(get_throughput_config().raw), allowed_doses())
+    return GateConfig(ReviewThresholds.from_config(get_throughput_config().raw))
 
 
 def get_ingest_stages(
@@ -74,15 +74,7 @@ def get_ingest_stages(
     """
     if agent is None:
         return None
-    cfg = gate_config()
-    return OrderAgentPipeline(
-        agent, cfg.thresholds, ocr_enabled=settings.feature_ocr, allowed_doses=cfg.allowed_doses
-    ).stages()
-
-
-def allowed_doses() -> list[str]:
-    """Liều có trong danh mục cấu hình — liều khác cần khách xác nhận (ADC-001, BR-02)."""
-    return [k for k, v in get_throughput_config().dose_factor.items() if v is not None]
+    return OrderAgentPipeline(agent, gate_config().thresholds, ocr_enabled=settings.feature_ocr).stages()
 
 
 class UploadAccepted(BaseModel):
@@ -244,9 +236,7 @@ def _manual_work_order(db: Session, actor_id: str, now: datetime) -> WorkOrder:
     db.flush()
     record_created(db, wo.id, actor_id=actor_id, actor_type=ActorType.USER, reason="nhập tay", now=now)
     cfg = gate_config()
-    record_gate(
-        db, wo, run_gate(WorkOrderFields(), {}, cfg.thresholds, allowed_doses=cfg.allowed_doses), now=now, auto=False
-    )
+    record_gate(db, wo, run_gate(WorkOrderFields(), {}, cfg.thresholds), now=now, auto=False)
     db.commit()
     return wo
 

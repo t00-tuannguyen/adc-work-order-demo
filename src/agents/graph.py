@@ -58,9 +58,7 @@ def get_shift_policy(tz: tzinfo) -> ShiftPolicy | None:
 
 
 def validate_node(state: IntakeState) -> dict:
-    config = get_throughput_config()
-    allowed = [k for k, v in config.dose_factor.items() if v is not None]
-    return {"errors": validate(state["fields"], allowed_doses=allowed)}
+    return {"errors": validate(state["fields"])}
 
 
 def assess_node(state: IntakeState) -> dict:

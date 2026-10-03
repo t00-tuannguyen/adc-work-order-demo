@@ -45,7 +45,7 @@ def extract(agent: PdfExtractor, model: str, sample_id: str, received_at: dateti
     return out
 
 
-def score_sample(sample_id: str, answer: dict, result: dict, thresholds, allowed_doses) -> SampleScore:
+def score_sample(sample_id: str, answer: dict, result: dict, thresholds) -> SampleScore:
     expected = answer["tickets"]
     if "error" in result:
         s = SampleScore(sample_id, answer["kind"], len(expected), 0, error=result["error"])
@@ -67,7 +67,6 @@ def score_sample(sample_id: str, answer: dict, result: dict, thresholds, allowed
             n.signals,
             thresholds,
             ticket=TicketSignal(boundary_uncertain=t.boundary_uncertain),
-            allowed_doses=allowed_doses,
         )
         ts.decision = "CLARIFY" if gate.errors else gate.assessment.decision.value
         s.tickets.append(ts)
@@ -154,7 +153,6 @@ def main() -> None:
         agent = GeminiOrderAgent(get_gemini_client(), model)
     config = get_throughput_config()
     thresholds = ReviewThresholds.from_config(config.raw)
-    allowed = [k for k, v in config.dose_factor.items() if v is not None]
 
     scores = []
     for sample_id in sorted(answers):
@@ -162,7 +160,7 @@ def main() -> None:
             continue
         cached = (CACHE / model / f"{sample_id}.json").exists()
         result = extract(agent, model, sample_id, received_at, args.refresh)
-        sc = score_sample(sample_id, answers[sample_id], result, thresholds, allowed)
+        sc = score_sample(sample_id, answers[sample_id], result, thresholds)
         scores.append(sc)
         print(
             f"{sample_id}: {'cache' if cached and not args.refresh else 'gọi'} · "

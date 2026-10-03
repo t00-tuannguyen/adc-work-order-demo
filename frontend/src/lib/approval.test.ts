@@ -2,7 +2,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { affectedCount, approvalLabels, type PlanDiff, rejectReasonError, sourceLabel, spanText } from "./approval.ts";
+import {
+  affectedCount,
+  approvalLabels,
+  compareVersions,
+  diffDays,
+  type PlanDiff,
+  rejectReasonError,
+  sourceLabel,
+  spanText,
+} from "./approval.ts";
 
 const version = (trigger: PlanDiff["plan_version"]["trigger"]) => ({
   id: 5,
@@ -41,4 +50,28 @@ test("từ chối bắt buộc ghi lý do", () => {
   assert.equal(rejectReasonError("  "), "Phải ghi lý do từ chối.");
   assert.equal(rejectReasonError("x".repeat(501)), "Lý do tối đa 500 ký tự.");
   assert.equal(rejectReasonError("Khách không đồng ý"), null);
+});
+
+test("so sánh: trước = lịch nền, sau = version; chưa có nền → current", () => {
+  assert.deepEqual(compareVersions({ plan_version: version("INCIDENT"), base_version_id: 4 }), {
+    before: "4",
+    after: "5",
+  });
+  assert.deepEqual(compareVersions({ plan_version: version("NEW_ORDER"), base_version_id: null }), {
+    before: "current",
+    after: "5",
+  });
+});
+
+test("ngày xem: gộp slot cũ / mới theo giờ VN, không trùng, có mốc thêm", () => {
+  const changes = [
+    {
+      old: { line: "A" as const, start: "2026-10-03T00:00:00Z", end: "2026-10-03T06:30:00Z" },
+      new: { line: "A" as const, start: "2026-10-04T03:45:00Z", end: "2026-10-04T10:15:00Z" },
+    },
+    { old: null, new: { line: "B" as const, start: "2026-10-03T18:00:00Z", end: "2026-10-03T20:00:00Z" } },
+  ];
+  // 18:00Z 03/10 = 01:00 04/10 giờ VN
+  assert.deepEqual(diffDays(changes), ["2026-10-03", "2026-10-04"]);
+  assert.deepEqual(diffDays(changes, ["2026-10-01T20:00:00Z"]), ["2026-10-02", "2026-10-03", "2026-10-04"]);
 });

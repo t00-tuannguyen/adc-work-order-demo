@@ -6,7 +6,7 @@ export type SourceKind = "VERBATIM" | "INFERRED" | "CONVERTED" | "OCR_LOW" | "MA
 export type ReviewStatus = "AUTO_ACCEPTED" | "ACCEPTED_WITH_WARNINGS" | "NEEDS_REVIEW" | "NEEDS_CLARIFICATION";
 export type IngestStep = "UPLOADED" | "READING" | "DETECTING" | "EXTRACTING" | "DONE" | "FAILED";
 export type Priority = "NORMAL" | "URGENT" | "VIP";
-export type ErrorCode = "MISSING" | "NOT_POSITIVE" | "RETURN_NOT_AFTER_ARRIVAL" | "DOSE_NEEDS_CONFIRMATION";
+export type ErrorCode = "MISSING" | "NOT_POSITIVE" | "RETURN_NOT_AFTER_ARRIVAL" | "DOSE_OUT_OF_RANGE";
 export type FlagCode =
   | "LOW_CONFIDENCE"
   | "BOUNDARY_UNCERTAIN"
@@ -203,7 +203,7 @@ export const ERROR_MESSAGE: Record<ErrorCode, string> = {
   MISSING: "Bắt buộc — nguồn không nêu, cần hỏi khách.",
   NOT_POSITIVE: "Phải lớn hơn 0.",
   RETURN_NOT_AFTER_ARRIVAL: "Giờ trả phải sau giờ hàng đến.",
-  DOSE_NEEDS_CONFIRMATION: "Liều không có trong danh mục — cần khách xác nhận.",
+  DOSE_OUT_OF_RANGE: "Liều phải trong khoảng 0 < liều ≤ 25 kGy.",
 };
 
 /** Lệnh nhập tay không có nguồn để hỏi lại — thông báo thiếu trường khác đi. */

@@ -17,7 +17,6 @@ from src.agents.graph import get_throughput_config
 from src.agents.intake_pipeline import auto_schedule
 from src.api.deps import require
 from src.api.estimation import BreakdownOut, EstimateResponse
-from src.api.intake import allowed_doses
 from src.modules.identity import Action, User
 from src.modules.intake import (
     COLUMN_TO_EXTRACTION,
@@ -176,7 +175,6 @@ def _gate(db: Session, wo: WorkOrder) -> tuple[GateResult, Ticket]:
         signals_from_extractions(_extractions(db, wo)),
         ReviewThresholds.from_config(get_throughput_config().raw),
         ticket=TicketSignal(boundary_uncertain=ticket.boundary_uncertain),
-        allowed_doses=allowed_doses(),
     )
     return gate, ticket
 

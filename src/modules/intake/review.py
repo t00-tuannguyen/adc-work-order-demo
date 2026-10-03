@@ -46,7 +46,7 @@ _QUESTION: dict[ErrorCode, str] = {
     ErrorCode.MISSING: "Anh/chị vui lòng cho biết {label}.",
     ErrorCode.NOT_POSITIVE: "Giá trị {label} trong phiếu chưa hợp lệ, anh/chị vui lòng xác nhận lại.",
     ErrorCode.RETURN_NOT_AFTER_ARRIVAL: "Giờ trả mong muốn đang sớm hơn hoặc bằng giờ hàng đến, anh/chị vui lòng xác nhận lại.",
-    ErrorCode.DOSE_NEEDS_CONFIRMATION: "Liều chiếu trong phiếu không có trong danh mục dịch vụ, anh/chị vui lòng xác nhận lại liều (kGy).",
+    ErrorCode.DOSE_OUT_OF_RANGE: "Liều chiếu trong phiếu phải lớn hơn 0 và không quá 25 kGy, anh/chị vui lòng xác nhận lại liều.",
 }
 
 
@@ -113,9 +113,8 @@ def run_gate(
     thresholds: ReviewThresholds,
     *,
     ticket: TicketSignal | None = None,
-    allowed_doses: Iterable[str] | None = None,
 ) -> GateResult:
-    errors = validate(fields, allowed_doses=allowed_doses)
+    errors = validate(fields)
     # Chỉ đánh giá độ tin cậy trường có giá trị (trường thiếu đã là lỗi validator)
     present = {k: v for k, v in signals.items() if getattr(fields, k, None) is not None}
     return GateResult(errors, assess(present, thresholds, ticket))

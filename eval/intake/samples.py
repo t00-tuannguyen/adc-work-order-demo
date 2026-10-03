@@ -215,7 +215,7 @@ TEXT_SAMPLES: list[dict] = [
     },
     {
         "id": "07_phieu_lieu_7",
-        "about": "Liều 7 kGy ngoài danh mục — trích đúng, validator hỏi lại",
+        "about": "Liều 7 kGy ngoài danh mục — trích đúng giá trị trong ticket, không hỏi lại",
         "pages": [
             form(
                 "PHIẾU YÊU CẦU DỊCH VỤ CHIẾU XẠ",

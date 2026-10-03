@@ -165,7 +165,7 @@
     },
     "07_phieu_lieu_7": {
       "kind": "text",
-      "about": "Liều 7 kGy ngoài danh mục — trích đúng, validator hỏi lại",
+      "about": "Liều 7 kGy ngoài danh mục — trích đúng giá trị trong ticket, không hỏi lại",
       "tickets": [
         {
           "page_from": 1,
