@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-3.5-flash"  # 3.8-flash hay 503 quá tải (30/09/2026)
     gemini_timeout_s: float = Field(default=60.0, gt=0)
 
+    # Order Agent chọn provider (ADR-0013): gemini (mặc định, ADR-0010) | openai — dùng OPENAI_API_KEY
+    order_agent_provider: Literal["gemini", "openai"] = "gemini"
+    openai_order_model: str = ""  # rỗng → MODEL_NAME; model phải đọc được file PDF (vd gpt-4o-mini)
+    openai_order_timeout_s: float = Field(default=60.0, gt=0)  # đọc cả file PDF lâu hơn lời gọi LLM thường
+
     # Database
     database_url: str = "sqlite:///./data/app.db"
 

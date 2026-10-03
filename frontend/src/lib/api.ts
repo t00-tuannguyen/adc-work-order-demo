@@ -15,6 +15,7 @@ import type { EstimateResult } from "./estimate";
 import type { ExplanationResult, Incident, IncidentInput } from "./incident";
 import { type IngestJob, type IntakeWarning, type JobWorkOrder, sourcePdfOutcome, type WorkOrderReview } from "./intake";
 import type { DraftResult, Escalation, RiskCheck } from "./risk";
+import { fallbackMessage } from "./http";
 import { loginUrl, type Me, type Role, type UserStatus } from "./roles";
 
 export class ApiError extends Error {
@@ -58,7 +59,7 @@ export async function api<T>(path: string, init?: RequestInit & { allow401?: boo
     } catch {
       /* body rỗng */
     }
-    throw new ApiError(resp.status, detailMessage(detail, resp.statusText), detail);
+    throw new ApiError(resp.status, detailMessage(detail, fallbackMessage(resp.status, resp.statusText)), detail);
   }
   return (resp.status === 204 ? undefined : await resp.json()) as T;
 }
@@ -147,14 +148,13 @@ export async function uploadTicket(file: File): Promise<UploadAccepted> {
   const resp = await fetch("/api/tickets/upload", { method: "POST", body, credentials: "same-origin" });
   if (resp.status === 401) redirectToLogin();
   if (!resp.ok) {
-    let detail = resp.statusText;
+    let detail: unknown;
     try {
-      const b = await resp.json();
-      detail = typeof b.detail === "string" ? b.detail : JSON.stringify(b.detail);
+      detail = (await resp.json()).detail;
     } catch {
-      /* body rỗng */
+      /* body rỗng hoặc không phải JSON */
     }
-    throw new ApiError(resp.status, detail);
+    throw new ApiError(resp.status, detailMessage(detail, fallbackMessage(resp.status, resp.statusText)), detail);
   }
   return resp.json();
 }

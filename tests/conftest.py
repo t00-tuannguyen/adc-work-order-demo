@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -41,8 +41,12 @@ def no_auto_schedule(monkeypatch):
 
 @pytest.fixture
 def db_factory():
-    """SQLite in-memory dùng chung 1 kết nối cho cả test."""
+    """SQLite in-memory dùng chung 1 kết nối cho cả test.
+
+    Bật kiểm tra khóa ngoại như Postgres production — mặc định SQLite bỏ qua FK (BUG-001).
+    """
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    event.listen(engine, "connect", lambda conn, _: conn.execute("PRAGMA foreign_keys=ON"))
     init_db(engine)
     yield sessionmaker(bind=engine, expire_on_commit=False)
     engine.dispose()

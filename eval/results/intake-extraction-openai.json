@@ -1,0 +1,501 @@
+{
+ "model": "gpt-4o-mini",
+ "provider": "openai",
+ "run_at": "2026-10-03T10:35:26+07:00",
+ "decision_values": [
+  "AUTO",
+  "WARN",
+  "REVIEW"
+ ],
+ "summary": {
+  "text": {
+   "samples": 10,
+   "tickets_expected": 11,
+   "ticket_count_ok": 10,
+   "failed_calls": 0,
+   "field_accuracy": 0.92,
+   "per_field": {
+    "product_name": 0.727,
+    "quantity": 1.0,
+    "package_dimensions_cm": 0.818,
+    "pkg_weight_kg": 1.0,
+    "required_dose_kgy": 1.0,
+    "priority": 1.0,
+    "expected_arrival": 0.909,
+    "requested_return": 0.909
+   },
+   "missing_detection": 1.0,
+   "page_accuracy": 1.0,
+   "page_range_accuracy": 1.0,
+   "decisions": {
+    "AUTO": 3,
+    "WARN": 1,
+    "REVIEW": 0,
+    "CLARIFY": 7
+   },
+   "auto_tickets": 3,
+   "auto_wrong": 1,
+   "auto_wrong_rate": 0.333,
+   "latency_s_max": 15.6,
+   "latency_s_avg": 9.4
+  },
+  "scan": {
+   "samples": 6,
+   "tickets_expected": 7,
+   "ticket_count_ok": 6,
+   "failed_calls": 0,
+   "field_accuracy": 0.625,
+   "per_field": {
+    "product_name": 0.429,
+    "quantity": 0.714,
+    "package_dimensions_cm": 0.571,
+    "pkg_weight_kg": 0.857,
+    "required_dose_kgy": 0.571,
+    "priority": 0.857,
+    "expected_arrival": 0.571,
+    "requested_return": 0.429
+   },
+   "missing_detection": 0.857,
+   "page_accuracy": 1.0,
+   "page_range_accuracy": 1.0,
+   "decisions": {
+    "AUTO": 0,
+    "WARN": 2,
+    "REVIEW": 0,
+    "CLARIFY": 5
+   },
+   "auto_tickets": 0,
+   "auto_wrong": 0,
+   "auto_wrong_rate": null,
+   "latency_s_max": 19.2,
+   "latency_s_avg": 10.1
+  },
+  "all": {
+   "samples": 16,
+   "tickets_expected": 18,
+   "ticket_count_ok": 16,
+   "failed_calls": 0,
+   "field_accuracy": 0.806,
+   "per_field": {
+    "product_name": 0.611,
+    "quantity": 0.889,
+    "package_dimensions_cm": 0.722,
+    "pkg_weight_kg": 0.944,
+    "required_dose_kgy": 0.833,
+    "priority": 0.944,
+    "expected_arrival": 0.778,
+    "requested_return": 0.722
+   },
+   "missing_detection": 0.933,
+   "page_accuracy": 1.0,
+   "page_range_accuracy": 1.0,
+   "decisions": {
+    "AUTO": 3,
+    "WARN": 3,
+    "REVIEW": 0,
+    "CLARIFY": 12
+   },
+   "auto_tickets": 3,
+   "auto_wrong": 1,
+   "auto_wrong_rate": 0.333,
+   "latency_s_max": 19.2,
+   "latency_s_avg": 9.7
+  }
+ },
+ "samples": [
+  {
+   "id": "01_phieu_giavi",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 9.0,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "AUTO"
+    }
+   ]
+  },
+  {
+   "id": "02_phieu_haisan_vip",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.5,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "03_email_2lo",
+   "kind": "text",
+   "expected_tickets": 2,
+   "predicted_tickets": 2,
+   "error": null,
+   "latency_s": 15.6,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": true,
+      "package_dimensions_cm": false,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    },
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "04_phieu_thieu_lieu",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.8,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "05_phieu_tra_truoc_den",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.0,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "06_email_don_vi_anh",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 7.8,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": true,
+      "package_dimensions_cm": false,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "AUTO"
+    }
+   ]
+  },
+  {
+   "id": "07_phieu_lieu_7",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.6,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "08_phieu_2trang",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 9.7,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "AUTO"
+    }
+   ]
+  },
+  {
+   "id": "09_phieu_vattu_yte",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 10.6,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "10_email_traicay_gam",
+   "kind": "text",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 7.7,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": false,
+      "requested_return": false
+     },
+     "decision": "WARN"
+    }
+   ]
+  },
+  {
+   "id": "11_scan_phieu_giavi",
+   "kind": "scan",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.5,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": true,
+      "package_dimensions_cm": false,
+      "pkg_weight_kg": false,
+      "required_dose_kgy": false,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": false
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "12_scan_email_2lo",
+   "kind": "scan",
+   "expected_tickets": 2,
+   "predicted_tickets": 2,
+   "error": null,
+   "latency_s": 19.2,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": false,
+      "priority": true,
+      "expected_arrival": false,
+      "requested_return": false
+     },
+     "decision": "CLARIFY"
+    },
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": false,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "13_scan_phieu_thieu_lieu",
+   "kind": "scan",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.1,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "14_scan_email_don_vi_anh",
+   "kind": "scan",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.3,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": false,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": false,
+      "expected_arrival": true,
+      "requested_return": true
+     },
+     "decision": "WARN"
+    }
+   ]
+  },
+  {
+   "id": "15_scan_phieu_vattu_yte",
+   "kind": "scan",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.1,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": true,
+      "quantity": true,
+      "package_dimensions_cm": false,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": false,
+      "priority": true,
+      "expected_arrival": false,
+      "requested_return": false
+     },
+     "decision": "CLARIFY"
+    }
+   ]
+  },
+  {
+   "id": "16_scan_tra_truoc_den_mo",
+   "kind": "scan",
+   "expected_tickets": 1,
+   "predicted_tickets": 1,
+   "error": null,
+   "latency_s": 8.4,
+   "tickets": [
+    {
+     "fields_ok": {
+      "product_name": false,
+      "quantity": false,
+      "package_dimensions_cm": true,
+      "pkg_weight_kg": true,
+      "required_dose_kgy": true,
+      "priority": true,
+      "expected_arrival": false,
+      "requested_return": false
+     },
+     "decision": "WARN"
+    }
+   ]
+  }
+ ]
+}

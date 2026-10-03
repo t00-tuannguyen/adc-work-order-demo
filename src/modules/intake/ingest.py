@@ -96,8 +96,11 @@ def create_ingest(
         received_at=received_at,
         uploaded_by=uploaded_by,
     )
+    db.add(ticket_file)
+    # Không có relationship() → unit of work không biết thứ tự; flush file trước để FK ingest_jobs.file_id hợp lệ (BUG-001)
+    db.flush()
     job = IngestJob(file_id=file_id, status=IngestJobStatus.QUEUED, step=IngestStep.UPLOADED)
-    db.add_all([ticket_file, job])
+    db.add(job)
     db.commit()
     return ticket_file, job
 

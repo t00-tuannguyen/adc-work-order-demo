@@ -2,8 +2,8 @@
 
     .venv/bin/python -m eval.intake.run_eval [--only 01_phieu_giavi] [--delay 5] [--refresh]
 
-Gọi Gemini thật (GEMINI_API_KEY trong .env). Kết quả thô được cache ở eval/intake/cache/<model>/ để chạy lại
-không tốn quota; `--refresh` gọi lại. Kết quả: eval/results/intake-extraction.{json,md}.
+Gọi provider thật theo ORDER_AGENT_PROVIDER (ADR-0013): gemini (GEMINI_API_KEY) hoặc openai (OPENAI_API_KEY). Kết quả thô được cache ở eval/intake/cache/<model>/ để chạy lại
+không tốn quota; `--refresh` gọi lại. Kết quả: eval/results/intake-extraction.{json,md} (openai: intake-extraction-openai.{json,md}).
 """
 
 import argparse
@@ -14,10 +14,11 @@ from pathlib import Path
 
 from eval.intake.scoring import FIELDS, SampleScore, comparable, score_ticket, summarize
 from src.agents.graph import get_throughput_config
-from src.agents.order_agent import GeminiOrderAgent, normalize
+from src.agents.order_agent import GeminiOrderAgent, OpenAIOrderAgent, PdfExtractor, normalize
 from src.agents.schemas import DocumentExtraction
 from src.modules.intake import ReviewDecision, ReviewThresholds, TicketSignal, inspect_pdf, run_gate
 from src.services.gemini import get_gemini_client
+from src.services.llm import get_llm
 from src.settings import get_settings
 
 PDFS = Path("src/seed/pdfs")
@@ -25,7 +26,7 @@ CACHE = Path("eval/intake/cache")
 RESULTS = Path("eval/results")
 
 
-def extract(agent: GeminiOrderAgent, model: str, sample_id: str, received_at: datetime, refresh: bool) -> dict:
+def extract(agent: PdfExtractor, model: str, sample_id: str, received_at: datetime, refresh: bool) -> dict:
     """{doc, latency_s} hoặc {error}; ghi cache."""
     cached = CACHE / model / f"{sample_id}.json"
     if cached.exists() and not refresh:
@@ -73,7 +74,7 @@ def score_sample(sample_id: str, answer: dict, result: dict, thresholds, allowed
     return s
 
 
-def report_md(model: str, summary: dict, scores: list[SampleScore], answers: dict) -> str:
+def report_md(model: str, provider: str, summary: dict, scores: list[SampleScore], answers: dict) -> str:
     def pct(v):
         return "—" if v is None else f"{v * 100:.1f}%"
 
@@ -84,7 +85,7 @@ def report_md(model: str, summary: dict, scores: list[SampleScore], answers: dic
         f"- Bộ mẫu: `src/seed/pdfs/` — {summary['all']['samples']} PDF giả lập "
         f"({summary['text']['samples']} văn bản số, {summary['scan']['samples']} scan), "
         f"{summary['all']['tickets_expected']} ticket, đáp án `answers.json`",
-        "- Chấm trên kết quả **sau chuẩn hóa** (như lưu vào work order). Độ tin cậy do Gemini tự chấm (ADR-0010).",
+        f"- Chấm trên kết quả **sau chuẩn hóa** (như lưu vào work order). Độ tin cậy do {provider} tự chấm (ADR-0010, ADR-0013).",
         "",
         "| Chỉ số | Văn bản số | Scan | Tất cả | Mục tiêu |",
         "|---|---|---|---|---|",
@@ -138,14 +139,19 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", nargs="*", help="chỉ chạy các mẫu này")
     ap.add_argument("--delay", type=float, default=5.0, help="giây nghỉ giữa 2 lời gọi (giới hạn tần suất)")
-    ap.add_argument("--refresh", action="store_true", help="bỏ qua cache, gọi Gemini lại")
+    ap.add_argument("--refresh", action="store_true", help="bỏ qua cache, gọi lại provider")
     args = ap.parse_args()
 
     settings = get_settings()
     answers_file = json.loads((PDFS / "answers.json").read_text())
     answers = answers_file["samples"]
     received_at = datetime.fromisoformat(answers_file["received_at"])
-    agent = GeminiOrderAgent(get_gemini_client(), settings.gemini_model)
+    if settings.order_agent_provider == "openai":
+        model, out = settings.openai_order_model or settings.model_name, "intake-extraction-openai"
+        agent: PdfExtractor = OpenAIOrderAgent(get_llm(model, settings.openai_order_timeout_s))
+    else:
+        model, out = settings.gemini_model, "intake-extraction"
+        agent = GeminiOrderAgent(get_gemini_client(), model)
     config = get_throughput_config()
     thresholds = ReviewThresholds.from_config(config.raw)
     allowed = [k for k, v in config.dose_factor.items() if v is not None]
@@ -154,8 +160,8 @@ def main() -> None:
     for sample_id in sorted(answers):
         if args.only and sample_id not in args.only:
             continue
-        cached = (CACHE / settings.gemini_model / f"{sample_id}.json").exists()
-        result = extract(agent, settings.gemini_model, sample_id, received_at, args.refresh)
+        cached = (CACHE / model / f"{sample_id}.json").exists()
+        result = extract(agent, model, sample_id, received_at, args.refresh)
         sc = score_sample(sample_id, answers[sample_id], result, thresholds, allowed)
         scores.append(sc)
         print(
@@ -168,7 +174,8 @@ def main() -> None:
     summary = summarize(scores)
     RESULTS.mkdir(parents=True, exist_ok=True)
     payload = {
-        "model": settings.gemini_model,
+        "model": model,
+        "provider": settings.order_agent_provider,
         "run_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "decision_values": [d.value for d in ReviewDecision],
         "summary": summary,
@@ -185,8 +192,8 @@ def main() -> None:
             for s in scores
         ],
     }
-    (RESULTS / "intake-extraction.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n")
-    (RESULTS / "intake-extraction.md").write_text(report_md(settings.gemini_model, summary, scores, answers))
+    (RESULTS / f"{out}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n")
+    (RESULTS / f"{out}.md").write_text(report_md(model, settings.order_agent_provider, summary, scores, answers))
     print(json.dumps(summary["all"], ensure_ascii=False))
 
 

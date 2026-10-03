@@ -93,8 +93,9 @@ Nguồn: sheet *Backlog* + mục "Công việc con" của 8 đặc tả trong `t
 | T-056 | Tinh chỉnh UX tiếp nhận & lịch | US-001, US-004 | [ADC-003](../tasks/ADC-003-line-scheduling-kanban.md) | P1 | 3 | — | — | Chờ review | Upload thành công → Kanban (DRAFT mới mở màn xác nhận); thẻ Kanban → /schedule đúng ngày + khối; lý do xếp ngắn gọn; cờ giờ trả trên lịch; polling ingest giãn dần |
 | T-057 | Bổ sung từ khóa nhóm sản phẩm từ ticket thật | US-003 | [ADC-002](../tasks/ADC-002-duration-estimation.md) | P1 | 2 | — | — | Chờ review | throughput.yaml: thêm nhóm vegetable, powder (density_factor null — cần chốt hệ số); mở rộng seafood, fruit |
 | T-058 | Dồn lịch (compaction) sau sự cố — không để line nghỉ | US-006, US-008 | [ADC-004](../tasks/ADC-004-incident-rescheduling.md) | P0 | 4 | — | — | Chờ review | ADR-0011; compact (scheduling/incident.py), outcome PULLED_FORWARD |
+| T-059 | Tùy chọn OpenAI cho Order Agent | US-001, US-002 | [ADC-001](../tasks/ADC-001-ticket-intake-pdf.md) | P1 | 3 | — | — | Chờ review | ADR-0013; ORDER_AGENT_PROVIDER=gemini\|openai, OpenAIOrderAgent (src/agents/order_agent.py) dùng chung prompt/schema/thử lại. Chưa chạy thử với OpenAI thật (.env chỉ có key mẫu) |
 
-**Tổng dự kiến: 88 giờ**
+**Tổng dự kiến: 91 giờ**
 
 ## Sprint 6 — Triển khai chính thức & đánh giá cuối kỳ (Tuần 6 · M7, M8)
 
@@ -108,7 +109,7 @@ Nguồn: sheet *Backlog* + mục "Công việc con" của 8 đặc tả trong `t
 
 **Tổng dự kiến: 22 giờ**
 
-**Tổng toàn dự án: 368 giờ**
+**Tổng toàn dự án: 371 giờ**
 
 ## Việc trống (T-055 trở đi)
 

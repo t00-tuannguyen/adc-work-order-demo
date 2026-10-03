@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from src.agents.graph import get_throughput_config
 from src.agents.intake_pipeline import GateConfig, OrderAgentPipeline, create_tickets, create_work_orders
-from src.agents.order_agent import ExtractionFailedError, GeminiOrderAgent, PdfExtractor
+from src.agents.order_agent import ExtractionFailedError, GeminiOrderAgent, OpenAIOrderAgent, PdfExtractor
 from src.api.deps import require
 from src.modules.identity import Action, User
 from src.modules.intake import (
@@ -39,6 +39,7 @@ from src.modules.intake.models import IngestJob
 from src.modules.orchestration import ActorType, AuditAction, WorkOrderState, record, record_created
 from src.services.db import get_db, get_session_factory, utcnow
 from src.services.gemini import get_gemini_client
+from src.services.llm import get_llm
 from src.services.storage import FileTooLargeError
 from src.settings import Settings, get_settings
 
@@ -47,7 +48,14 @@ router = APIRouter(tags=["intake"])
 
 
 def get_order_agent(settings: Settings = Depends(get_settings)) -> PdfExtractor | None:
-    """Order Agent (Gemini, ADR-0010). Chưa cấu hình GEMINI_API_KEY → None."""
+    """Order Agent theo `ORDER_AGENT_PROVIDER` (ADR-0013): Gemini (ADR-0010) hoặc OpenAI.
+
+    Chưa cấu hình key của provider đã chọn → None.
+    """
+    if settings.order_agent_provider == "openai":
+        if not settings.openai_api_key:
+            return None
+        return OpenAIOrderAgent(get_llm(settings.openai_order_model or None, settings.openai_order_timeout_s))
     if not settings.gemini_api_key:
         return None
     return GeminiOrderAgent(get_gemini_client(), settings.gemini_model)
@@ -60,7 +68,7 @@ def gate_config() -> GateConfig:
 def get_ingest_stages(
     settings: Settings = Depends(get_settings), agent: PdfExtractor | None = Depends(get_order_agent)
 ) -> Sequence[IngestStage] | None:
-    """Các bước xử lý sau upload: Gemini đọc/OCR + trích xuất. Mỗi request 1 pipeline mới.
+    """Các bước xử lý sau upload: Order Agent đọc/OCR + trích xuất. Mỗi request 1 pipeline mới.
 
     Chưa có Order Agent → None: job nằm ở QUEUED/UPLOADED, không chạy nền.
     """
@@ -202,7 +210,10 @@ def create_ticket(
         if not (body.raw_text or "").strip():
             raise HTTPException(status_code=422, detail="Nội dung dán đang trống")
         if agent is None:
-            raise HTTPException(status_code=503, detail="Chưa cấu hình Order Agent (GEMINI_API_KEY)")
+            raise HTTPException(
+                status_code=503,
+                detail="Chưa cấu hình Order Agent (GEMINI_API_KEY hoặc OPENAI_API_KEY theo ORDER_AGENT_PROVIDER)",
+            )
         try:
             doc = agent.extract_text(body.raw_text, received_at=body.received_at or now)
         except ExtractionFailedError:

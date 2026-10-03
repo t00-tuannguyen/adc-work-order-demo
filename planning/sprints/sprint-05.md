@@ -5,7 +5,7 @@
 | Tuần / Mốc | W5 · M6 Demo 2 |
 | Thời gian | DD/MM/YYYY → DD/MM/YYYY (1 tuần) |
 | Sprint Goal | Sản phẩm hoàn thiện cho Demo 2: hàng đợi escalation + AI soạn thông điệp, KPI và so sánh 1 vs 2 line, đăng nhập Google + RBAC, audit gắn người dùng thật. |
-| Tổng dự kiến | 88 giờ |
+| Tổng dự kiến | 91 giờ |
 | Capacity | 4 thành viên × [giờ cam kết] |
 
 ## Sprint backlog
@@ -27,6 +27,7 @@
 | T-055 | Xóa lệnh nháp | [ADC-001](../../tasks/ADC-001-ticket-intake-pdf.md) | 2 | — | Chờ review |
 | T-056 | Tinh chỉnh UX tiếp nhận & lịch | [ADC-003](../../tasks/ADC-003-line-scheduling-kanban.md) | 3 | — | Chờ review |
 | T-057 | Bổ sung từ khóa nhóm sản phẩm từ ticket thật | [ADC-002](../../tasks/ADC-002-duration-estimation.md) | 2 | — | Chờ review |
+| T-059 | Tùy chọn OpenAI cho Order Agent | [ADC-001](../../tasks/ADC-001-ticket-intake-pdf.md) | 3 | — | Chờ review |
 
 ## Daily notes
 

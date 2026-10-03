@@ -1,10 +1,12 @@
-"""Order Agent — Gemini đọc PDF (cả bản scan) và trích xuất 8 trường kèm trang/vùng nguồn (ADC-001, T-019, ADR-0010).
+"""Order Agent — LLM đọc PDF (cả bản scan) và trích xuất 8 trường kèm trang/vùng nguồn (ADC-001, T-019, ADR-0010).
 
-1 lời gọi cho cả file. Sai schema / lỗi API / trang ngoài file → thử lại tối đa 3 lần (lỗi tạm thời 429/5xx chờ
+Provider chọn bằng `ORDER_AGENT_PROVIDER`: Gemini (mặc định, ADR-0010) hoặc OpenAI (ADR-0013, T-059) — cùng prompt,
+cùng schema, cùng luật thử lại. 1 lời gọi cho cả file. Sai schema / lỗi API / trang ngoài file → thử lại tối đa 3 lần (lỗi tạm thời 429/5xx chờ
 1 → 2 → 4 s trước khi thử lại) rồi ExtractionFailedError (nhập tay).
 Chuẩn hóa sau khi LLM trả về là deterministic (`normalize`): múi giờ, tách quy cách, nhãn OCR_LOW.
 """
 
+import base64
 import logging
 import time
 from collections.abc import Callable
@@ -12,7 +14,10 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol
 
+import openai
 from google.genai import errors, types
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_openai.chat_models.base import OpenAIRefusalError
 from pydantic import ValidationError
 
 from src.agents.schemas import DocumentExtraction, ExtractedField, OrderExtraction, TicketExtraction
@@ -25,7 +30,8 @@ LOCAL_TZ = timezone(timedelta(hours=7), "Asia/Ho_Chi_Minh")
 
 SYSTEM_PROMPT = """Bạn đọc file PDF phiếu yêu cầu dịch vụ chiếu xạ (văn bản số hoặc bản scan) và trích xuất JSON theo schema.
 - 1 file có thể chứa nhiều ticket (nhiều khách / nhiều lô). Mỗi ticket: page_from, page_to (đánh số từ 1).
-  Không chắc ticket bắt đầu/kết thúc ở trang nào → boundary_uncertain = true.
+  boundary_uncertain mặc định = false. CHỈ đặt true khi file có nhiều trang/nhiều ticket VÀ không xác định được
+  ticket bắt đầu/kết thúc ở trang nào. File 1 trang, hoặc mỗi ticket có tiêu đề/khối rõ ràng → false.
 - 8 trường mỗi ticket: product_name, quantity, package_dimensions_cm, pkg_weight_kg, required_dose_kgy,
   priority, expected_arrival, requested_return.
 - Đơn vị chuẩn: cm, kg, kGy. Đơn vị khác (inch, lb, g, mm) → quy đổi, source_kind = CONVERTED.
@@ -58,26 +64,65 @@ class PdfExtractor(Protocol):
     def extract_text(self, text: str, *, received_at: datetime) -> DocumentExtraction: ...
 
 
-# Lỗi tạm thời của Gemini (quá tải / giới hạn tần suất) → chờ rồi thử lại
+# Lỗi tạm thời (quá tải / giới hạn tần suất) → chờ rồi thử lại
 TRANSIENT_CODES = frozenset({429, 500, 502, 503, 504})
 MAX_RETRIES = 3
 BACKOFF_S = (1.0, 2.0, 4.0)
 
 
-class GeminiOrderAgent:
+def _receipt_prompt(received_at: datetime) -> str:
+    return f"Ngày nhận ticket: {received_at.astimezone(LOCAL_TZ):%Y-%m-%d %H:%M}."
+
+
+class _RetryingOrderAgent:
+    """Luật thử lại chung: sai schema / lỗi API / trang ngoài file → thử lại; lỗi tạm thời chờ 1 → 2 → 4 s."""
+
+    provider = ""
+    api_errors: tuple[type[Exception], ...] = ()
+
+    def __init__(self, max_retries: int = MAX_RETRIES, sleep: Callable[[float], None] = time.sleep):
+        self.max_retries, self.sleep = max_retries, sleep
+
+    def _status(self, e: Exception) -> int | None:
+        raise NotImplementedError
+
+    def _run(self, call: Callable[[], DocumentExtraction], page_count: int) -> DocumentExtraction:
+        attempts = self.max_retries + 1
+        last: Exception | None = None
+        for attempt in range(1, attempts + 1):
+            try:
+                doc = call()
+                check_pages(doc, page_count)
+                return doc
+            except (*self.api_errors, ValidationError, ValueError) as e:
+                logger.warning("Order Agent lần %d/%d lỗi: %s", attempt, attempts, e)
+                last = e
+                if attempt < attempts and isinstance(e, self.api_errors) and self._status(e) in TRANSIENT_CODES:
+                    self.sleep(BACKOFF_S[min(attempt - 1, len(BACKOFF_S) - 1)])
+        raise ExtractionFailedError(f"{self.provider} không trả kết quả hợp lệ") from last
+
+
+class GeminiOrderAgent(_RetryingOrderAgent):
+    provider = "Gemini"
+    api_errors = (errors.APIError,)
+
     def __init__(
         self, client: Any, model: str, max_retries: int = MAX_RETRIES, sleep: Callable[[float], None] = time.sleep
     ):
-        self.client, self.model, self.max_retries, self.sleep = client, model, max_retries, sleep
+        super().__init__(max_retries, sleep)
+        self.client, self.model = client, model
 
     def extract_pdf(self, pdf: bytes, *, page_count: int, received_at: datetime) -> DocumentExtraction:
-        prompt = f"Ngày nhận ticket: {received_at.astimezone(LOCAL_TZ):%Y-%m-%d %H:%M}. File có {page_count} trang."
+        prompt = f"{_receipt_prompt(received_at)} File có {page_count} trang."
         return self._generate([types.Part.from_bytes(data=pdf, mime_type="application/pdf"), prompt], page_count)
 
     def extract_text(self, text: str, *, received_at: datetime) -> DocumentExtraction:
         """Tab "Dán nội dung": cùng schema, nội dung coi là 1 trang."""
-        prompt = f"Ngày nhận ticket: {received_at.astimezone(LOCAL_TZ):%Y-%m-%d %H:%M}. Nội dung dán (1 trang):"
+        prompt = f"{_receipt_prompt(received_at)} Nội dung dán (1 trang):"
         return self._generate([prompt, text], page_count=1)
+
+    def _status(self, e: Exception) -> int | None:
+        return e.code if isinstance(e, errors.APIError) else None
 
     def _generate(self, contents: list, page_count: int) -> DocumentExtraction:
         config = types.GenerateContentConfig(
@@ -88,24 +133,57 @@ class GeminiOrderAgent:
             # Không khai báo tool → tắt AFC để SDK không log cảnh báo ở mỗi lời gọi
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
-        attempts = self.max_retries + 1
-        last: Exception | None = None
-        for attempt in range(1, attempts + 1):
-            try:
-                res = self.client.models.generate_content(model=self.model, contents=contents, config=config)
-                doc = DocumentExtraction.model_validate_json(res.text or "")
-                check_pages(doc, page_count)
-                return doc
-            except (errors.APIError, ValidationError, ValueError) as e:
-                logger.warning("Order Agent lần %d/%d lỗi: %s", attempt, attempts, e)
-                last = e
-                if attempt < attempts and isinstance(e, errors.APIError) and e.code in TRANSIENT_CODES:
-                    self.sleep(BACKOFF_S[min(attempt - 1, len(BACKOFF_S) - 1)])
-        raise ExtractionFailedError("Gemini không trả kết quả hợp lệ") from last
+
+        def call() -> DocumentExtraction:
+            res = self.client.models.generate_content(model=self.model, contents=contents, config=config)
+            return DocumentExtraction.model_validate_json(res.text or "")
+
+        return self._run(call, page_count)
+
+
+class OpenAIOrderAgent(_RetryingOrderAgent):
+    """OpenAI (ADR-0013): gửi nguyên file PDF dạng file input của Chat Completions, output ràng buộc schema.
+
+    `llm`: chat model LangChain hỗ trợ `with_structured_output` (services/llm.get_llm) — model phải đọc được PDF.
+    """
+
+    provider = "OpenAI"
+    # Model từ chối trả lời (refusal) không kế thừa openai.APIError → thử lại như lỗi schema
+    api_errors = (openai.APIError, OpenAIRefusalError)
+
+    def __init__(self, llm: Any, max_retries: int = MAX_RETRIES, sleep: Callable[[float], None] = time.sleep):
+        super().__init__(max_retries, sleep)
+        self.llm = llm.with_structured_output(DocumentExtraction)
+
+    def extract_pdf(self, pdf: bytes, *, page_count: int, received_at: datetime) -> DocumentExtraction:
+        content = [
+            {"type": "text", "text": f"{_receipt_prompt(received_at)} File có {page_count} trang."},
+            {
+                "type": "file",
+                "base64": base64.b64encode(pdf).decode(),
+                "mime_type": "application/pdf",
+                "filename": "ticket.pdf",
+            },
+        ]
+        return self._generate(content, page_count)
+
+    def extract_text(self, text: str, *, received_at: datetime) -> DocumentExtraction:
+        """Tab "Dán nội dung": cùng schema, nội dung coi là 1 trang."""
+        prompt = f"{_receipt_prompt(received_at)} Nội dung dán (1 trang):"
+        return self._generate([{"type": "text", "text": prompt}, {"type": "text", "text": text}], page_count=1)
+
+    def _status(self, e: Exception) -> int | None:
+        if isinstance(e, openai.APIStatusError):
+            return e.status_code
+        return 503 if isinstance(e, openai.APIConnectionError) else None  # timeout / mất kết nối → coi như tạm thời
+
+    def _generate(self, content: list[dict], page_count: int) -> DocumentExtraction:
+        messages = [SystemMessage(SYSTEM_PROMPT), HumanMessage(content=content)]
+        return self._run(lambda: DocumentExtraction.model_validate(self.llm.invoke(messages)), page_count)
 
 
 def check_pages(doc: DocumentExtraction, page_count: int) -> None:
-    """Trang Gemini trả về phải nằm trong file — sai → coi như sai schema (thử lại)."""
+    """Trang LLM trả về phải nằm trong file — sai → coi như sai schema (thử lại)."""
     for t in doc.tickets:
         if not (1 <= t.page_from <= t.page_to <= page_count):
             raise ValueError(f"ticket trang {t.page_from}–{t.page_to} ngoài file {page_count} trang")
